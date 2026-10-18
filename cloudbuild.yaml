@@ -1,3 +1,5 @@
 steps:
   - name: 'alpine'
     args: ['echo', 'hello from build']
+options:
+  logging: CLOUD_LOGGING_ONLY
