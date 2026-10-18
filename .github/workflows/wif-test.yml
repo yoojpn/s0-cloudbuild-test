@@ -24,7 +24,8 @@ jobs:
               \"grantType\": \"urn:ietf:params:oauth:grant-type:token-exchange\",
               \"requestedTokenType\": \"urn:ietf:params:oauth:token-type:access_token\",
               \"subjectToken\": \"${{ steps.idtoken.outputs.idtoken }}\",
-              \"subjectTokenType\": \"urn:ietf:params:oauth:token-type:jwt\"
+              \"subjectTokenType\": \"urn:ietf:params:oauth:token-type:jwt\",
+              \"scope\": \"https://www.googleapis.com/auth/cloud-platform\"
             }")
           echo "FEDRESP: $RESP"
           FEDTOKEN=$(echo "$RESP" | jq -r '.access_token')
